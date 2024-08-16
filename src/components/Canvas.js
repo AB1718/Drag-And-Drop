@@ -1,46 +1,25 @@
-// src/components/Canvas.js
-import React, { useState } from 'react';
-import { useDrop } from 'react-dnd';
-import Card from './Card';
-import { ItemTypes } from './ItemTypes';
+import React, { useState } from "react";
+import { useDrop } from "react-dnd";
+import Card from "./Card";
 
 const Canvas = () => {
-  const [cards, setCards] = useState([
-    { id: 1, text: 'This is a sample text for card 1' },
-    { id: 2, text: 'This is a sample text for card 2' },
-  ]);
+  const [cards, setCards] = useState([]);
 
-  const moveCard = (draggedId, targetId) => {
-    const draggedIndex = cards.findIndex(card => card.id === draggedId);
-    const targetIndex = cards.findIndex(card => card.id === targetId);
-    const newCards = [...cards];
-    const [movedCard] = newCards.splice(draggedIndex, 1);
-    newCards.splice(targetIndex, 0, movedCard);
-    setCards(newCards);
-  };
-
-  const [, drop] = useDrop({
-    accept: ItemTypes.CARD,
+  const [{ isOver }, drop] = useDrop({
+    accept: "CARD",
+    drop: (item, monitor) => {
+      const offset = monitor.getSourceClientOffset();
+      setCards([...cards, { ...item, left: offset.x, top: offset.y }]);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
   });
 
   return (
-    <div
-      ref={drop}
-      style={{
-        width: '100%',
-        height: '100vh',
-        overflow: 'scroll',
-        position: 'relative',
-        border: '1px solid gray',
-      }}
-    >
-      {cards.map(card => (
-        <Card
-          key={card.id}
-          id={card.id}
-          text={card.text}
-          moveCard={moveCard}
-        />
+    <div ref={drop} className="w-full h-screen bg-gray-100 overflow-scroll relative">
+      {cards.map((card, index) => (
+        <Card key={index} id={card.id} text={card.text} left={card.left} top={card.top} />
       ))}
     </div>
   );

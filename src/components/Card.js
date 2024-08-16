@@ -1,44 +1,55 @@
-// src/components/Canvas.js
-import React, { useState } from 'react';
-import { useDrop } from 'react-dnd';
-import Card from './Card';
-import { ItemTypes } from './ItemTypes';
-import './Canvas.css'; // Importing CSS for Canvas component
+import React, { useState } from "react";
+import { useDrag } from "react-dnd";
+import { Resizable } from "react-resizable";
+import "react-resizable/css/styles.css";
 
-const Canvas = () => {
-  const [cards, setCards] = useState([
-    { id: 1, text: 'This is a sample text for card 1' },
-    { id: 2, text: 'This is a sample text for card 2' },
-  ]);
-
-  const moveCard = (draggedId, targetId) => {
-    const draggedIndex = cards.findIndex(card => card.id === draggedId);
-    const targetIndex = cards.findIndex(card => card.id === targetId);
-    const newCards = [...cards];
-    const [movedCard] = newCards.splice(draggedIndex, 1);
-    newCards.splice(targetIndex, 0, movedCard);
-    setCards(newCards);
-  };
-
-  const [, drop] = useDrop({
-    accept: ItemTypes.CARD,
+const Card = ({ id, text, left, top }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: "CARD",
+    item: { id, left, top },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
   });
 
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
   return (
-    <div
-      ref={drop}
-      className="canvas"
+    <Resizable
+      width={200}
+      height={100}
+      className="absolute"
+      style={{ left, top }}
     >
-      {cards.map(card => (
-        <Card
-          key={card.id}
-          id={card.id}
-          text={card.text}
-          moveCard={moveCard}
-        />
-      ))}
-    </div>
+      <div
+        ref={drag}
+        className={`p-4 bg-white rounded shadow-lg ${isDragging ? "opacity-50" : ""}`}
+      >
+        <p>{text.substring(0, 50)}...</p>
+        <button
+          onClick={() => setIsPopupOpen(true)}
+          className="text-blue-500 underline"
+        >
+          Show More
+        </button>
+
+        {isPopupOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-8 rounded shadow-lg">
+              <h2 className="text-xl mb-4">Card Details</h2>
+              <p>{text}</p>
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Resizable>
   );
 };
 
-export default Canvas;
+export default Card;

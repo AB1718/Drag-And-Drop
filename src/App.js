@@ -1,17 +1,12 @@
-// src/App.js
-import React from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import Canvas from './components/Canvas';
-import './App.css'; // Importing CSS for App component
+import React from "react";
+import Canvas from "./Canvas";
 
-const App = () => (
-  <DndProvider backend={HTML5Backend}>
-    <div className="app">
-      <h1>Drag-and-Drop Canvas</h1>
+function App() {
+  return (
+    <div className="App">
       <Canvas />
     </div>
-  </DndProvider>
-);
+  );
+}
 
 export default App;
